@@ -17,7 +17,7 @@ Live site: https://fandandaodaodan.github.io/lottie-preview
 
 - React
 - TypeScript
-- Create React App
+- Rspack
 - lottie-react
 - react-dropzone
 - JSZip
@@ -44,14 +44,10 @@ http://localhost:3000
 
 ## Scripts
 
-Run tests:
-
-```bash
-npm test -- --watchAll=false
-```
-
 Build for production:
 
 ```bash
 npm run build
 ```
+
+The production output is written to `dist/`.
