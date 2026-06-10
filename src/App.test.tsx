@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
-import { analyzeLottieAssets, formatFrameTime, getFolderQueueName, getZipQueueName } from './LottieUploader';
+import { analyzeLottieAssets, formatFrameTime, getFolderQueueName, getZipQueueName } from './utils/lottie';
 
 jest.mock('lottie-react', () => ({
   __esModule: true,

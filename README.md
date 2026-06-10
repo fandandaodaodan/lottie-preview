@@ -55,21 +55,3 @@ Build for production:
 ```bash
 npm run build
 ```
-
-## Deployment
-
-This project deploys to GitHub Pages through GitHub Actions.
-
-The workflow is defined in:
-
-```text
-.github/workflows/deploy.yml
-```
-
-The production path is configured with:
-
-```json
-"homepage": "https://fandandaodaodan.github.io/lottie-preview"
-```
-
-After pushing to `master`, GitHub Actions builds the app and deploys the `build` output to GitHub Pages.
