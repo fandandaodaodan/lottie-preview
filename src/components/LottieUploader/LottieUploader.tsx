@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone';
 import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 import JSZip from 'jszip';
+import sample404Animation from '../../assets/404-sample.json';
 import { LottieData, UploadedImage } from '../../types/lottie';
 import {
   analyzeLottieAssets,
@@ -22,23 +23,40 @@ import {
 } from '../../utils/lottie';
 import './LottieUploader.css';
 
+const canvasBackgrounds = {
+  light: '#f3f6fa',
+  dark: '#0f1624'
+};
+
+type CanvasBackground = keyof typeof canvasBackgrounds;
+
+const sampleLottie = createLottieEntry(
+  '404 Sample Motion',
+  sample404Animation,
+  undefined,
+  [],
+  analyzeLottieAssets(sample404Animation, [])
+);
+
 const LottieUploader: React.FC = () => {
-  const [lottieFiles, setLottieFiles] = useState<LottieData[]>([]);
-  const [currentLottie, setCurrentLottie] = useState<LottieData | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [lottieFiles, setLottieFiles] = useState<LottieData[]>([sampleLottie]);
+  const [currentLottie, setCurrentLottie] = useState<LottieData | null>(sampleLottie);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [currentFrame, setCurrentFrame] = useState(0);
   const [speed, setSpeed] = useState(1);
-  const [shouldLoop, setShouldLoop] = useState(false);
+  const [shouldLoop, setShouldLoop] = useState(true);
   const [shouldAutoplay, setShouldAutoplay] = useState(false);
+  const [canvasBackground, setCanvasBackground] = useState<CanvasBackground>('light');
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
   const lottieFilesRef = useRef<LottieData[]>([]);
-  const shouldLoopRef = useRef(false);
+  const shouldLoopRef = useRef(true);
 
   const frameRange = useMemo(() => getFrameRange(currentLottie?.data), [currentLottie]);
   const frameRate = Number(currentLottie?.data?.fr) || 0;
   const assetCount = currentLottie?.uploadedImages?.length || 0;
   const currentDiagnostics = currentLottie?.diagnostics || emptyDiagnostics;
+  const effectiveCanvasBackground = canvasBackgrounds[canvasBackground];
 
   const activateLottie = useCallback((entry: LottieData, play = shouldAutoplay) => {
     setCurrentLottie(entry);
@@ -303,10 +321,13 @@ const LottieUploader: React.FC = () => {
         <div className="brand-block">
           <span className="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 44 44" fill="none">
-              <path d="M12 30V12h5v13h13v5H12Z" fill="currentColor" />
-              <circle cx="29" cy="15" r="3" fill="currentColor" />
-              <circle cx="34" cy="22" r="2.5" fill="currentColor" />
-              <circle cx="28" cy="29" r="2" fill="currentColor" />
+              <rect x="13" y="4.5" width="18" height="35" rx="5.5" fill="#111827" />
+              <rect x="15" y="8" width="14" height="28" rx="3" fill="#F8FBFF" />
+              <rect x="19" y="6.5" width="6" height="2" rx="1" fill="#050914" />
+              <path d="M18 27.5c3.3-8.2 10.3-3.8 9.6-10.5" stroke="#2D7FF9" strokeWidth="2.2" strokeLinecap="round" />
+              <circle cx="18" cy="27.5" r="2.4" fill="#24A898" />
+              <circle cx="27.5" cy="17" r="2.4" fill="#2D7FF9" />
+              <rect x="19.5" y="33.5" width="5" height="1.3" rx="0.65" fill="#C9D4E2" />
             </svg>
           </span>
           <div>
@@ -392,7 +413,7 @@ const LottieUploader: React.FC = () => {
       <section className="stage-shell" aria-label="Lottie preview stage">
         <div className="stage-topbar">
           <div>
-            <span className="eyebrow">375 × 812 mobile canvas</span>
+            <span className="eyebrow">375 × 812 iPhone canvas</span>
             <h2>{currentLottie?.name || 'Ready for preview'}</h2>
           </div>
           <div className="status-strip">
@@ -401,7 +422,7 @@ const LottieUploader: React.FC = () => {
             {currentDiagnostics.warningCount > 0 && (
               <span className="warning-pill">WARN {currentDiagnostics.warningCount}</span>
             )}
-            <span>{isPlaying ? 'Playing' : 'Paused'}</span>
+            <span className="playback-pill">{isPlaying ? 'Playing' : 'Paused'}</span>
           </div>
         </div>
 
@@ -417,17 +438,21 @@ const LottieUploader: React.FC = () => {
 
         <div className="phone-stage">
           <div className="phone-frame">
+            <div className="phone-island" aria-hidden="true" />
             <div className="phone-status" aria-hidden="true">
               <span>9:41</span>
               <span className="status-dots">● ● ●</span>
             </div>
-            <div className="lottie-wrapper">
+            <div
+              className="lottie-wrapper"
+              style={{ '--canvas-background': effectiveCanvasBackground } as React.CSSProperties}
+            >
               {currentLottie ? (
                 <Lottie
                   key={currentLottie.id}
                   lottieRef={lottieRef}
                   animationData={currentLottie.data}
-                  loop={false}
+                  loop={shouldLoop}
                   autoplay={isPlaying}
                   className="lottie-animation"
                   onEnterFrame={() => {
@@ -456,6 +481,7 @@ const LottieUploader: React.FC = () => {
                 </div>
               )}
             </div>
+            <div className="home-indicator" aria-hidden="true" />
           </div>
         </div>
 
@@ -528,6 +554,26 @@ const LottieUploader: React.FC = () => {
             />
             <span>自动播放</span>
           </label>
+
+          <div className="canvas-background" aria-label="Canvas background">
+            <span>背景</span>
+            <button
+              type="button"
+              className={canvasBackground === 'light' ? 'active' : ''}
+              onClick={() => setCanvasBackground('light')}
+              title="#f3f6fa"
+            >
+              白
+            </button>
+            <button
+              type="button"
+              className={canvasBackground === 'dark' ? 'active' : ''}
+              onClick={() => setCanvasBackground('dark')}
+              title="#0f1624"
+            >
+              黑
+            </button>
+          </div>
         </div>
       </section>
     </main>
