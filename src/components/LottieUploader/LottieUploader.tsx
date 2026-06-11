@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone';
 import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 import JSZip from 'jszip';
-import sample404Animation from '../../assets/404-sample.json';
 import { LottieData, UploadedImage } from '../../types/lottie';
 import {
   analyzeLottieAssets,
@@ -30,27 +29,19 @@ const canvasBackgrounds = {
 
 type CanvasBackground = keyof typeof canvasBackgrounds;
 
-const sampleLottie = createLottieEntry(
-  '404 Sample Motion',
-  sample404Animation,
-  undefined,
-  [],
-  analyzeLottieAssets(sample404Animation, [])
-);
-
 const LottieUploader: React.FC = () => {
-  const [lottieFiles, setLottieFiles] = useState<LottieData[]>([sampleLottie]);
-  const [currentLottie, setCurrentLottie] = useState<LottieData | null>(sampleLottie);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [lottieFiles, setLottieFiles] = useState<LottieData[]>([]);
+  const [currentLottie, setCurrentLottie] = useState<LottieData | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [currentFrame, setCurrentFrame] = useState(0);
   const [speed, setSpeed] = useState(1);
-  const [shouldLoop, setShouldLoop] = useState(true);
+  const [shouldLoop, setShouldLoop] = useState(false);
   const [shouldAutoplay, setShouldAutoplay] = useState(false);
   const [canvasBackground, setCanvasBackground] = useState<CanvasBackground>('light');
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
   const lottieFilesRef = useRef<LottieData[]>([]);
-  const shouldLoopRef = useRef(true);
+  const shouldLoopRef = useRef(false);
 
   const frameRange = useMemo(() => getFrameRange(currentLottie?.data), [currentLottie]);
   const frameRate = Number(currentLottie?.data?.fr) || 0;
@@ -413,7 +404,7 @@ const LottieUploader: React.FC = () => {
       <section className="stage-shell" aria-label="Lottie preview stage">
         <div className="stage-topbar">
           <div>
-            <span className="eyebrow">375 × 812 iPhone canvas</span>
+            <span className="eyebrow">375 × 812 preview canvas</span>
             <h2>{currentLottie?.name || 'Ready for preview'}</h2>
           </div>
           <div className="status-strip">
@@ -438,11 +429,6 @@ const LottieUploader: React.FC = () => {
 
         <div className="phone-stage">
           <div className="phone-frame">
-            <div className="phone-island" aria-hidden="true" />
-            <div className="phone-status" aria-hidden="true">
-              <span>9:41</span>
-              <span className="status-dots">● ● ●</span>
-            </div>
             <div
               className="lottie-wrapper"
               style={{ '--canvas-background': effectiveCanvasBackground } as React.CSSProperties}
@@ -481,7 +467,6 @@ const LottieUploader: React.FC = () => {
                 </div>
               )}
             </div>
-            <div className="home-indicator" aria-hidden="true" />
           </div>
         </div>
 
